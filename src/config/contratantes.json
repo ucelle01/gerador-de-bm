@@ -1,0 +1,100 @@
+{
+  "contratantes": [
+    {
+      "id": "HPCES",
+      "nome": "HOSPITAL PRAIA DA COSTA S.A.",
+      "sigla": "HPC (ES)",
+      "logo": "logos/LOGO_HPCES.png"
+    },
+    {
+      "id": "HMVES",
+      "nome": "MATERNIDADE SANTA URSULA",
+      "sigla": "HMV (ES)",
+      "logo": "logos/LOGO_HMVES.png"
+    },
+    {
+      "id": "HMCES",
+      "nome": "HOSPITAL MERIDIONAL S.A",
+      "sigla": "HMC (ES)",
+      "logo": "logos/LOGO_HMCES.png"
+    },
+    {
+      "id": "HMSES",
+      "nome": "HOSPITAL METROPOLITANO S.A.",
+      "sigla": "HMS (ES)",
+      "logo": "logos/LOGO_HMSES.png"
+    },
+    {
+      "id": "HSFES",
+      "nome": "HOSPITAL E MATERNIDADE SÃO FRANCISCO DE ASSIM S.A.",
+      "sigla": "HSF (ES)",
+      "logo": "logos/LOGO_HSFES.png"
+    },
+    {
+      "id": "HSLES",
+      "nome": "HOSPITAL SÃO LUIZ S.A.",
+      "sigla": "HSL (ES)",
+      "logo": "logos/LOGO_HSLES.png"
+    },
+    {
+      "id": "HMSMES",
+      "nome": "HOSPITAL MERIDIONAL SÃO MATEUS S.A.",
+      "sigla": "HMSM (ES)",
+      "logo": "logos/LOGO_HMSMES.png"
+    },
+    {
+      "id": "HATDF",
+      "nome": "HOSPITAL ANCHIETA S.A.",
+      "sigla": "HAT (DF)",
+      "logo": "logos/LOGO_HATDF.png"
+    },
+    {
+      "id": "HACDF",
+      "nome": "SERVICOS HOSPITALARES YUGE S.A.",
+      "sigla": "HAC (DF)",
+      "logo": "logos/LOGO_HACDF.png"
+    },
+    {
+      "id": "HENDF",
+      "nome": "HOSPITAL ENCORE LTDA",
+      "sigla": "HEN (DF)",
+      "logo": "logos/LOGO_HENDF.png"
+    },
+    {
+      "id": "INGDF",
+      "nome": "INSTITUTO DE NEUROLOGIA DE GOIANIA LTDA",
+      "sigla": "ING (DF)",
+      "logo": "logos/LOGO_INGDF.png"
+    },
+    {
+      "id": "HSTMT",
+      "nome": "HOSPITAL SANTA THEREZA LTDA",
+      "sigla": "HST (MT)",
+      "logo": "logos/LOGO_HSTMT.png"
+    },
+    {
+      "id": "HPMMT",
+      "nome": "HOSPITAL PALMAS MEDICAL S.A.",
+      "sigla": "HPM (MT)",
+      "logo": "logos/LOGO_HPMMT.png"
+    },
+    {
+      "id": "HSMCMT",
+      "nome": "HOSPITAL E MATERNIDADE SÃO MATEUS LTDA",
+      "sigla": "HSM (MT)",
+      "logo": "logos/LOGO_HSMCMT.png"
+    },
+    {
+      "id": "OTOACE",
+      "nome": "HOSPITAL OTOCLINICA LTDA",
+      "sigla": "OTO A (CE)",
+      "logo": "logos/LOGO_OTOACE.png"
+    },
+    {
+      "id": "OTOCCE",
+      "nome": "OTOIMAGEM DIAGNOSTICOS S.A.",
+      "sigla": "OTO C (CE)",
+      "logo": "logos/LOGO_OTOCCE.png"
+    }
+  ]
+}

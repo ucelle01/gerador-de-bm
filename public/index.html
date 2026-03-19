@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Boletim de Medição</title>
+  
+  <!-- Favicon - Múltiplos formatos para compatibilidade -->
+  <link rel="icon" type="image/svg+xml" href="./favicon-bm.svg?v=1">
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+  <link rel="shortcut icon" href="./favicon.ico">
+  <meta name="theme-color" content="#667eea">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 Boletim de Medição</h1>
+    </div>
+
+    <div class="content">
+      <form id="formularioBoletim" class="form-boletim">
+        <!-- Informações da Contratada -->
+        <fieldset>
+          <legend>📋 Informações da Contratada</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contratada">Contratada *</label>
+              <input type="text" id="contratada" name="contratada" required placeholder="Nome da empresa contratada">
+            </div>
+            <div class="form-group">
+              <label for="cnpj">CNPJ *</label>
+              <input type="text" id="cnpj" name="cnpj" required placeholder="00.000.000/0000-00">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Informações do Contrato -->
+        <fieldset>
+          <legend>📑 Informações do Contrato</legend>
+          <div class="form-group">
+            <label for="contratante">Contratante *</label>
+            <div class="contratante-selector">
+              <select id="contratante" name="contratante" required>
+                <option value="">Selecione o contratante</option>
+              </select>
+              <div id="contratante-info" class="contratante-info">
+                <img id="contratante-logo" src="" alt="Logo" class="contratante-logo">
+                <span id="contratante-sigla" class="contratante-sigla"></span>
+              </div>
+            </div>
+          </div>
+          <!-- Campo oculto para armazenar a URL da logo -->
+          <input type="hidden" id="logoUrlHidden" name="logoUrlHidden" value="">
+
+          <div class="form-group">
+            <label for="objeto">Objeto do Contrato *</label>
+            <input type="text" id="objeto" name="objeto" required placeholder="Descrição do objeto contratado">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="numeroProjeto">Número do Projeto *</label>
+              <input type="text" id="numeroProjeto" name="numeroProjeto" required placeholder="Número ou código do projeto">
+            </div>
+            <div class="form-group">
+              <label for="nPedido">Número do Pedido</label>
+              <input type="text" id="nPedido" name="nPedido" placeholder="Número do pedido (opcional)">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Datas e Período -->
+        <fieldset>
+          <legend>📅 Datas e Período</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mesMedicao">Mês da Medição *</label>
+              <select id="mesMedicao" name="mesMedicao" required>
+                <option value="">Selecione o mês</option>
+                <option value="01">Janeiro</option>
+                <option value="02">Fevereiro</option>
+                <option value="03">Março</option>
+                <option value="04">Abril</option>
+                <option value="05">Maio</option>
+                <option value="06">Junho</option>
+                <option value="07">Julho</option>
+                <option value="08">Agosto</option>
+                <option value="09">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="dataInicio">Data de Início *</label>
+              <input type="date" id="dataInicio" name="dataInicio" required>
+            </div>
+            <div class="form-group">
+              <label for="anoMedicao">Ano da Medição *</label>
+              <input type="number" id="anoMedicao" name="anoMedicao" required placeholder="2026" min="2000">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="periodo">Período da Medição *</label>
+            <input type="text" id="periodo" name="periodo" required placeholder="Será preenchido automaticamente" readonly>
+          </div>
+
+          <div class="form-group">
+            <label for="vencimentoNF">Vencimento da Nota Fiscal *</label>
+            <input type="text" id="vencimentoNF" name="vencimentoNF" required placeholder="Ex: 30">
+          </div>
+        </fieldset>
+
+        <!-- Serviços Medidos -->
+        <fieldset>
+          <legend>🔧 Serviços Medidos</legend>
+          
+          <div id="servicos-container">
+            <div class="servico-item">
+              <div class="servico-item-content">
+                <div class="form-group">
+                  <label>Descrição *</label>
+                  <input type="text" class="descricao" required placeholder="Descrição do serviço">
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Quantidade</label>
+                    <input type="number" class="quantidade" required min="1.00" step="1.00" placeholder="1.00">
+                  </div>
+                  <div class="form-group">
+                    <label>Preço Unitário (R$) *</label>
+                    <input type="number" class="precoUnitario" required min="1.00" step="1.00" placeholder="0.00">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Medindo Atualmente</label>
+                    <input type="number" class="quantidadeAtual" required min="0" step="0.10" placeholder="0.00">
+                  </div>
+                  <div class="form-group">
+                    <label>Medido Anteriormente</label>
+                    <input type="number" class="quantidadeAnterior" required min="0" step="0.10" placeholder="0.00">
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn-remover-servico" onclick="removerServico(this)">🗑️ Remover Serviço</button>
+            </div>
+          </div>
+
+          <button type="button" id="adicionar-servico" class="btn-secondary">➕ Adicionar Novo Serviço</button>
+        </fieldset>
+
+        <!-- Ações -->
+        <div class="form-actions">
+          <button type="button" id="btn-preview" class="btn-primary">👁️ Visualizar</button>
+          <button type="button" id="btn-gerar-excel" class="btn-primary">📊 Exportar Excel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Modal de Preview -->
+    <div id="preview-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="fecharPreview()">&times;</span>
+        <h2>📄 Visualização do Boletim</h2>
+        <div id="preview-content"></div>
+      </div>
+    </div>
+
+    <!-- Indicador de Carregamento -->
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Processando arquivo...</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
