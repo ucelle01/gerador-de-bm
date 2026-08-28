@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const ContratadosConfig = require('../utils/ContratadosConfig');
+const ContratadosConfig = require('../utils/contratadasConfig');
 
 class BoletimService {
   static validarDados(dados) {

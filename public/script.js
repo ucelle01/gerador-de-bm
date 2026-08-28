@@ -1,3 +1,4 @@
+
 // Estado da aplicação
 let servicoAtual = 1;
 let ultimoDiaPeriodo = ''; // <-- adicionado
@@ -17,9 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (cnpjInput) {
     cnpjInput.addEventListener('input', formatarCNPJ);
   }
-
+ 
   // CORRIGIDO: Carregar contratantes ao iniciar
   carregarContratantes();
+  carregarContratadas();
 
   
   const mesEl = document.getElementById('mesMedicao');

@@ -3,7 +3,7 @@ const ExcelGenerator = require('../services/ExcelGenerator');
 const path = require('path');
 const fs = require('fs');
 const ContratantesConfig = require('../utils/contratantesConfig');
-const ContratadosConfig = require('../utils/ContratadosConfig');
+const ContratadasConfig = require('../utils/contratadasConfig');
 
 const router = express.Router();
 
@@ -154,5 +154,17 @@ router.get('/contratantes', (req, res) => {
     res.status(500).json({ error: 'Erro ao obter lista de contratantes' });
   }
 });
+
+// Contratadas
+router.get('/contratadas', (req, res) => {
+  try {
+    const contratadas = ContratadasConfig.obterTodos();
+    res.json(contratadas);
+  } catch (error) {
+    console.error('Erro ao obter contratadas:', error);
+    res.status(500).json({ error: 'Erro ao obter lista de contratadas' });
+  }
+});
+
 
 module.exports = router;

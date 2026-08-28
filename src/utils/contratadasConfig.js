@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-class ContratadosConfig {
+class ContratadasConfig {
   static caminhoConfig = path.join(__dirname, '../config/contratadas.json');
 
   static carregar() {
@@ -23,6 +23,10 @@ class ContratadosConfig {
       console.error('[✗] Erro ao salvar contratadas:', error.message);
       return false;
     }
+  }
+  
+  static obterTodos() {
+    return this.carregar();
   }
 
   /**
@@ -93,4 +97,4 @@ class ContratadosConfig {
   }
 }
 
-module.exports = ContratadosConfig;
+module.exports = ContratadasConfig;

@@ -85,6 +85,12 @@
       "logo": "logos/LOGO_HSMCMT.png"
     },
     {
+      "id": "KORAES",
+      "nome": "KORA SAÚDE PARTICIPAÇÕES S.A.",
+      "sigla": "KORA (ES)",
+      "logo": "logos/LOGO_KORAES.png"
+    },
+    {
       "id": "OTOACE",
       "nome": "HOSPITAL OTOCLINICA LTDA",
       "sigla": "OTO A (CE)",

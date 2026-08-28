@@ -77,6 +77,7 @@ legend {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-bottom: 10px;
 }
 
 .form-group label {
@@ -153,7 +154,7 @@ legend {
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 0 20px;
 }
 
 .form-group.full-width {
