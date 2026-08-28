@@ -9,14 +9,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnPreview = document.getElementById('btn-preview');
   const btnGerarExcel = document.getElementById('btn-gerar-excel');
   const cnpjInput = document.getElementById('cnpj');
+  const newCnpjInput = document.getElementById('new-cnpj');
+  const btnNovaContratada = document.getElementById('new-contratada');
+  const camposNovaContratada = document.getElementById('new-contratada-fields');
+  const btnSalvarNovaContratada = document.getElementById('save-new-contratada');
 
   btnAdicionarServico.addEventListener('click', adicionarServico);
   btnPreview.addEventListener('click', mostrarPreview);
   btnGerarExcel.addEventListener('click', gerarExcel);
 
+  btnNovaContratada.addEventListener('click', () => {
+    const exibir = camposNovaContratada.hidden;
+    camposNovaContratada.hidden = !exibir;
+    btnNovaContratada.value = exibir
+      ? '✖️ Ocultar Cadastro'
+      : '➕ Cadastrar Nova Contratada';
+    camposNovaContratada.querySelectorAll('input').forEach(input => {
+      input.required = exibir;
+    });
+  });
+
+  btnSalvarNovaContratada.addEventListener('click', salvarNovaContratada);
+
   // Formatar CNPJ conforme digita
   if (cnpjInput) {
     cnpjInput.addEventListener('input', formatarCNPJ);
+  }
+  if (newCnpjInput) {
+    newCnpjInput.addEventListener('input', formatarCNPJ);
   }
  
   // CORRIGIDO: Carregar contratantes ao iniciar
@@ -406,6 +426,69 @@ async function carregarContratantes() {
     });
   } catch (error) {
     console.error('Erro ao carregar contratantes:', error);
+  }
+}
+
+async function carregarContratadas() {
+  try {
+    const response = await fetch('/api/boletim/contratadas');
+    if (!response.ok) throw new Error('Erro ao carregar contratadas');
+
+    const contratadas = await response.json();
+    const select = document.getElementById('contratada');
+    const cnpjInput = document.getElementById('cnpj');
+
+    select.querySelectorAll('option:not(:first-child)').forEach(option => option.remove());
+
+    contratadas.forEach(contratada => {
+      const option = document.createElement('option');
+      option.value = contratada.nome;
+      option.textContent = contratada.nome;
+      option.dataset.cnpj = contratada.cnpj || '';
+      select.appendChild(option);
+    });
+
+    select.addEventListener('change', event => {
+      const option = event.target.options[event.target.selectedIndex];
+      cnpjInput.value = option.dataset.cnpj || '';
+    });
+  } catch (error) {
+    console.error('Erro ao carregar contratadas:', error);
+  }
+}
+
+async function salvarNovaContratada() {
+  const nomeInput = document.getElementById('new-cadastro');
+  const cnpjInput = document.getElementById('new-cnpj');
+  const nome = nomeInput.value.trim();
+  const cnpj = cnpjInput.value.trim();
+
+  if (!nome || !cnpj) {
+    alert('Preencha o nome e o CNPJ da contratada.');
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/boletim/contratadas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, cnpj })
+    });
+
+    const resultado = await response.json();
+    if (!response.ok) throw new Error(resultado.error || 'Erro ao salvar contratada');
+
+    await carregarContratadas();
+    const select = document.getElementById('contratada');
+    select.value = resultado.nome;
+    document.getElementById('cnpj').value = resultado.cnpj;
+    nomeInput.value = '';
+    cnpjInput.value = '';
+    document.getElementById('new-contratada').click();
+    alert('Contratada salva com sucesso.');
+  } catch (error) {
+    console.error('Erro ao salvar contratada:', error);
+    alert(error.message);
   }
 }
 

@@ -166,5 +166,27 @@ router.get('/contratadas', (req, res) => {
   }
 });
 
+router.post('/contratadas', (req, res) => {
+  try {
+    const { nome, cnpj } = req.body;
+
+    if (!nome?.trim() || !cnpj?.trim()) {
+      return res.status(400).json({ error: 'Nome e CNPJ são obrigatórios' });
+    }
+
+    const adicionada = ContratadasConfig.adicionarOuAtualizar(nome.trim(), cnpj.trim());
+
+    if (!adicionada) {
+      return res.status(409).json({ error: 'CNPJ já cadastrado ou dados inválidos' });
+    }
+
+    const contratada = ContratadasConfig.obterPorCnpj(cnpj.trim());
+    res.status(201).json(contratada);
+  } catch (error) {
+    console.error('Erro ao salvar contratada:', error);
+    res.status(500).json({ error: 'Erro ao salvar contratada' });
+  }
+});
+
 
 module.exports = router;
