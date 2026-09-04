@@ -21,6 +21,7 @@ function validarDadosBoletim(dados) {
   if (!dados.numeroProjeto?.trim()) erros.push('Número do Projeto é obrigatório');
   if (!dados.periodo?.trim()) erros.push('Período é obrigatório');
   if (!dados.dataInicio?.trim()) erros.push('Data de Início é obrigatória');
+  if (!dados.nMedicao?.toString().trim()) erros.push('Número da Medição é obrigatório');
   if (!dados.vencimentoNF?.trim()) erros.push('Vencimento da NF é obrigatório');
 
   if (!dados.servicos || !Array.isArray(dados.servicos) || dados.servicos.length === 0) {

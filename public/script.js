@@ -232,6 +232,7 @@ function validarFormulario() {
   if (!dados.numeroProjeto) erros.push('Número do Projeto é obrigatório');
   if (!dados.periodo) erros.push('Período é obrigatório');
   if (!dados.dataInicio) erros.push('Data de Início é obrigatória');
+  if (!dados.nMedicao) erros.push('Número da Medição é obrigatório');
   if (!dados.vencimentoNF) erros.push('Vencimento da NF é obrigatório');
   if (dados.servicos.length === 0) erros.push('Adicione pelo menos um serviço');
 
