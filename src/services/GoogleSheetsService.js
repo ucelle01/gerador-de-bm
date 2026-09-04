@@ -54,7 +54,7 @@ class GoogleSheetsService {
   static async garantirCabecalhos(sheets) {
     const spreadsheetId = this.getSpreadsheetId();
     const ranges = [
-      { range: 'Medicoes!A1:O1', headers: MEDICOES_HEADERS },
+      { range: 'Medicoes!A1:P1', headers: MEDICOES_HEADERS },
       { range: 'MedicaoServicos!A1:G1', headers: SERVICOS_HEADERS }
     ];
 

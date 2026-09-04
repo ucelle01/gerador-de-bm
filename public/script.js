@@ -243,6 +243,21 @@ function validarFormulario() {
   return true;
 }
 
+async function obterMensagemErro(response, mensagemPadrao) {
+  const texto = await response.text();
+  if (!texto) return mensagemPadrao;
+
+  try {
+    const dados = JSON.parse(texto);
+    const detalhes = Array.isArray(dados.detalhes)
+      ? `: ${dados.detalhes.join('; ')}`
+      : '';
+    return `${dados.error || dados.erro || dados.mensagem || mensagemPadrao}${detalhes}`;
+  } catch {
+    return `${mensagemPadrao}: ${texto.slice(0, 200)}`;
+  }
+}
+
 async function carregarUsuarios() {
   try {
     const response = await fetch('/api/boletim/usuarios');
@@ -298,7 +313,9 @@ async function mostrarPreview() {
       body: JSON.stringify(dados)
     });
 
-    if (!response.ok) throw new Error('Erro ao gerar preview');
+    if (!response.ok) {
+      throw new Error(await obterMensagemErro(response, 'Erro ao gerar preview'));
+    }
 
     const boletim = await response.json();
     exibirPreview(boletim);
@@ -388,8 +405,7 @@ async function gerarExcel() {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Erro ao gerar Excel');
+      throw new Error(await obterMensagemErro(response, 'Erro ao gerar Excel'));
     }
 
     const blob = await response.blob();
