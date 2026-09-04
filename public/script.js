@@ -212,7 +212,7 @@ function coletarDados() {
     mesMedicao: mesEl?.value?.trim() || '',
     anoMedicao: anoEl?.value?.trim() || '',
     nMedicao: document.getElementById('nMedicao').value.trim() || '',
-    //logoUrl: logoUrl,
+    logoUrl,
     servicos
   };
 
@@ -349,7 +349,7 @@ function exibirPreview(boletim) {
         <td>${servico.quantidade.toFixed(2)}</td>
         <td>R$ ${servico.precoUnitario.toFixed(2)}</td>
         <td>R$ ${subtotal.toFixed(2)}</td>
-        <td>${servico.medicaoAtual ? '✓' : '-'}</td>
+        <td>${servico.quantidadeAtual ? '✓' : '-'}</td>
       </tr>
     `;
   });
@@ -486,7 +486,16 @@ function preencherFormulario(medicao) {
 
   const container = document.getElementById('servicos-container');
   container.innerHTML = '';
-  (medicao.servicos || []).forEach(servico => {
+  const servicos = medicao.servicos || [];
+
+  if (servicos.length === 0) {
+    adicionarServico();
+    servicoAtual = 1;
+    return;
+  }
+
+  servicoAtual = 0;
+  servicos.forEach(servico => {
     adicionarServico();
     const item = container.lastElementChild;
     item.querySelector('.descricao').value = servico.descricao || '';
@@ -552,12 +561,14 @@ async function carregarContratantes() {
         // atribui src e alt; onerror substitui por placeholder
         logoEl.src = logoToUse;
         logoEl.alt = option.dataset.nome || 'Logo';
+        document.getElementById('logoUrlHidden').value = logoUrl;
         siglaEl.textContent = sigla;
         info.classList.add('show');
       } else {
         info.classList.remove('show');
         // limpar src para evitar solicitações desnecessárias
         document.getElementById('contratante-logo').src = '';
+        document.getElementById('logoUrlHidden').value = '';
         document.getElementById('contratante-sigla').textContent = '';
       }
     });
