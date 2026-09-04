@@ -284,6 +284,7 @@ async function carregarMedicoes() {
 
     const medicoes = await response.json();
     const lista = document.getElementById('lista-medicoes');
+    lista.replaceChildren();
 
     medicoes.forEach(medicao => {
       if (!medicao.idMedicao) return;
@@ -421,6 +422,7 @@ async function gerarExcel() {
     window.URL.revokeObjectURL(url);
 
     limparFormularioAposExportacao();
+    await carregarMedicoes();
     alert('✅ Excel gerado e baixado com sucesso!');
   } catch (error) {
     console.error('[✗] Erro:', error);
