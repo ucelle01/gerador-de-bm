@@ -108,13 +108,13 @@ legend {
   background: #fafbff;
 }
 
-.form-group input:invalid:not(:placeholder-shown),
-.form-group select:invalid:not(:placeholder-shown) {
+.formularioBoletim.exportacao-tentada .form-group input:invalid,
+.formularioBoletim.exportacao-tentada .form-group select:invalid {
   border-color: #ff6b6b;
 }
 
-.form-group input:invalid:focus,
-.form-group select:invalid:focus {
+.formularioBoletim.exportacao-tentada .form-group input:invalid:focus,
+.formularioBoletim.exportacao-tentada .form-group select:invalid:focus {
   box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
 }
 

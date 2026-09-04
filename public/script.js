@@ -391,6 +391,9 @@ function fecharPreview() {
 }
 
 async function gerarExcel() {
+  const formulario = document.getElementById('formularioBoletim');
+  formulario.classList.add('exportacao-tentada');
+
   if (!validarFormulario()) return;
 
   const dados = coletarDados();
@@ -439,6 +442,7 @@ function limparFormularioAposExportacao() {
   const usuarioSelecionado = usuario.value;
 
   formulario.reset();
+  formulario.classList.remove('exportacao-tentada');
   usuario.value = usuarioSelecionado;
 
   const anoMedicao = document.getElementById('anoMedicao');
