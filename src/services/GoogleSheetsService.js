@@ -2,6 +2,7 @@ const { google } = require('googleapis');
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
+const ContratadasConfig = require('../utils/contratadasConfig');
 
 const MEDICOES_HEADERS = [
   'id_Medicao', 'data_Medicao', 'Contratada', 'CNPJ_Contratada', 'Contratante',
@@ -13,6 +14,8 @@ const SERVICOS_HEADERS = [
   'id_Medicao', 'id_Servico', 'Descricao', 'Quantidade', 'medindo_Atual',
   'medido_Anterior', 'preco_Unitario'
 ];
+
+const CONTRATADAS_HEADERS = ['id', 'nome', 'cnpj', 'dataCadastro'];
 
 class GoogleSheetsService {
   static getSpreadsheetId() {
@@ -53,9 +56,26 @@ class GoogleSheetsService {
 
   static async garantirCabecalhos(sheets) {
     const spreadsheetId = this.getSpreadsheetId();
+    const planilha = await sheets.spreadsheets.get({
+      spreadsheetId,
+      fields: 'sheets.properties.title'
+    });
+    const abas = new Set((planilha.data.sheets || []).map(sheet => sheet.properties.title));
+    const nomesAbas = ['Medicoes', 'MedicaoServicos', 'Contratadas'];
+
+    for (const nomeAba of nomesAbas) {
+      if (!abas.has(nomeAba)) {
+        await sheets.spreadsheets.batchUpdate({
+          spreadsheetId,
+          requestBody: { requests: [{ addSheet: { properties: { title: nomeAba } } }] }
+        });
+      }
+    }
+
     const ranges = [
       { range: 'Medicoes!A1:P1', headers: MEDICOES_HEADERS },
-      { range: 'MedicaoServicos!A1:G1', headers: SERVICOS_HEADERS }
+      { range: 'MedicaoServicos!A1:G1', headers: SERVICOS_HEADERS },
+      { range: 'Contratadas!A1:D1', headers: CONTRATADAS_HEADERS }
     ];
 
     for (const item of ranges) {
@@ -72,6 +92,75 @@ class GoogleSheetsService {
         });
       }
     }
+
+    const contratadasResposta = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'Contratadas!A2:D'
+    });
+    if (!contratadasResposta.data.values?.length) {
+      const contratadas = ContratadasConfig.obterTodos();
+      if (contratadas.length) {
+        await sheets.spreadsheets.values.append({
+          spreadsheetId,
+          range: 'Contratadas!A:D',
+          valueInputOption: 'USER_ENTERED',
+          requestBody: {
+            values: contratadas.map(contratada => [
+              contratada.id || `CONTRATADA_${crypto.randomUUID()}`,
+              contratada.nome,
+              contratada.cnpj,
+              contratada.dataCadastro || new Date().toISOString()
+            ])
+          }
+        });
+      }
+    }
+  }
+
+  static async listarContratadas() {
+    const sheets = await this.getClient();
+    if (!sheets) return ContratadasConfig.obterTodos();
+
+    const spreadsheetId = this.getSpreadsheetId();
+    await this.garantirCabecalhos(sheets);
+    const resposta = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'Contratadas!A2:D'
+    });
+
+    return (resposta.data.values || []).map(linha => ({
+      id: linha[0] || '',
+      nome: linha[1] || '',
+      cnpj: linha[2] || '',
+      dataCadastro: linha[3] || ''
+    }));
+  }
+
+  static async adicionarContratada(nome, cnpj) {
+    const sheets = await this.getClient();
+    if (!sheets) return null;
+
+    const contratadas = await this.listarContratadas();
+    const cnpjNormalizado = cnpj.replace(/\D/g, '');
+    if (contratadas.some(contratada => contratada.cnpj.replace(/\D/g, '') === cnpjNormalizado)) {
+      return false;
+    }
+
+    const contratada = {
+      id: `CONTRATADA_${Date.now()}`,
+      nome: nome.toUpperCase(),
+      cnpj,
+      dataCadastro: new Date().toISOString()
+    };
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: this.getSpreadsheetId(),
+      range: 'Contratadas!A:D',
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [[contratada.id, contratada.nome, contratada.cnpj, contratada.dataCadastro]]
+      }
+    });
+    return contratada;
   }
 
   static async gerarProximoId(sheets) {

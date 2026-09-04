@@ -167,9 +167,9 @@ router.get('/contratantes', (req, res) => {
 });
 
 // Contratadas
-router.get('/contratadas', (req, res) => {
+router.get('/contratadas', async (req, res) => {
   try {
-    const contratadas = ContratadasConfig.obterTodos();
+    const contratadas = await GoogleSheetsService.listarContratadas();
     res.json(contratadas);
   } catch (error) {
     console.error('Erro ao obter contratadas:', error);
@@ -186,7 +186,7 @@ router.get('/usuarios', (req, res) => {
   }
 });
 
-router.post('/contratadas', (req, res) => {
+router.post('/contratadas', async (req, res) => {
   try {
     const { nome, cnpj } = req.body;
 
@@ -194,13 +194,17 @@ router.post('/contratadas', (req, res) => {
       return res.status(400).json({ error: 'Nome e CNPJ são obrigatórios' });
     }
 
-    const adicionada = ContratadasConfig.adicionarOuAtualizar(nome.trim(), cnpj.trim());
+    const nomeNormalizado = nome.trim();
+    const cnpjNormalizado = cnpj.trim();
+    const adicionada = GoogleSheetsService.isConfigured()
+      ? await GoogleSheetsService.adicionarContratada(nomeNormalizado, cnpjNormalizado)
+      : ContratadasConfig.adicionarOuAtualizar(nomeNormalizado, cnpjNormalizado);
 
-    if (!adicionada) {
+    if (adicionada === false) {
       return res.status(409).json({ error: 'CNPJ já cadastrado ou dados inválidos' });
     }
 
-    const contratada = ContratadasConfig.obterPorCnpj(cnpj.trim());
+    const contratada = adicionada || ContratadasConfig.obterPorCnpj(cnpjNormalizado);
     res.status(201).json(contratada);
   } catch (error) {
     console.error('Erro ao salvar contratada:', error);
