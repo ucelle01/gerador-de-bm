@@ -438,6 +438,12 @@ function limparFormularioAposExportacao() {
   formulario.reset();
   usuario.value = usuarioSelecionado;
 
+  const anoMedicao = document.getElementById('anoMedicao');
+  if (anoMedicao) {
+    anoMedicao.value = new Date().getFullYear();
+    anoMedicao.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
   const container = document.getElementById('servicos-container');
   const servicos = container.querySelectorAll('.servico-item');
   servicos.forEach((servico, index) => {
