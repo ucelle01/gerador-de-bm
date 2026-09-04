@@ -27,6 +27,22 @@
         <!-- Informações da Contratada -->
         <fieldset>
           <legend>📋 Informações da Contratada</legend>
+          <div class="form-group">
+            <label for="usuario">Usuário *</label>
+            <select id="usuario" name="usuario" required>
+              <option value="">Selecione o usuário</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="id-medicao-pesquisa">Consultar medição salva</label>
+            <div class="form-row">
+              <input type="search" id="id-medicao-pesquisa" list="lista-medicoes"
+                placeholder="Digite o ID da medição" autocomplete="off">
+              <datalist id="lista-medicoes"></datalist>
+              <button type="button" id="buscar-medicao" class="btn-secondary">🔎 Buscar</button>
+            </div>
+            <small id="resultado-medicao" aria-live="polite"></small>
+          </div>
           <div class="form-row">
             <div class="form-group">
               <label for="contratada">Contratada *</label>
@@ -39,7 +55,9 @@
               <input type="text" id="cnpj" name="cnpj" required placeholder="00.000.000/0000-00">
             </div>
           </div>
-          <input type="button" name="new-contratada" id="new-contratada" class="btn-secondary" value="➕ Cadastrar Nova Contratada">
+          <input type="button" name="new-contratada" id="new-contratada" class="btn-secondary"
+            value="➕ Cadastrar Nova Contratada">
+
           <div id="new-contratada-fields" hidden>
             <div class="form-row">
               <div class="form-group">
@@ -120,6 +138,10 @@
             <div class="form-group">
               <label for="anoMedicao">Ano da Medição *</label>
               <input type="number" id="anoMedicao" name="anoMedicao" required placeholder="2026" min="2000">
+            </div>
+            <div class="form-group">
+              <label for="nMedicao">Número da Medição *</label>
+              <input type="number" id="nMedicao" name="nMedicao" required placeholder="1" min="1">
             </div>
           </div>
 

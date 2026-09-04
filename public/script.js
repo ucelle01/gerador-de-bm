@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnNovaContratada = document.getElementById('new-contratada');
   const camposNovaContratada = document.getElementById('new-contratada-fields');
   const btnSalvarNovaContratada = document.getElementById('save-new-contratada');
+  const idMedicaoPesquisa = document.getElementById('id-medicao-pesquisa');
+  const btnBuscarMedicao = document.getElementById('buscar-medicao');
 
   btnAdicionarServico.addEventListener('click', adicionarServico);
   btnPreview.addEventListener('click', mostrarPreview);
@@ -30,6 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnSalvarNovaContratada.addEventListener('click', salvarNovaContratada);
+  btnBuscarMedicao.addEventListener('click', () => carregarMedicao(idMedicaoPesquisa.value));
+  idMedicaoPesquisa.addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      carregarMedicao(idMedicaoPesquisa.value);
+    }
+  });
 
   // Formatar CNPJ conforme digita
   if (cnpjInput) {
@@ -42,7 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // CORRIGIDO: Carregar contratantes ao iniciar
   carregarContratantes();
   carregarContratadas();
-
+  carregarUsuarios();
+  carregarMedicoes();
   
   const mesEl = document.getElementById('mesMedicao');
   const anoEl = document.getElementById('anoMedicao');
@@ -60,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${dd}/${mm}/${yyyy}`;
   }
 
-  function lastFiveBusinessDays(monthValue, yearValue) {
+  function firstFiveBusinessDaysFrom20(monthValue, yearValue) {
     const m = parseInt(monthValue, 10);
     const y = parseInt(yearValue, 10);
     if (isNaN(m) || isNaN(y)) return [];
@@ -69,17 +79,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let prevMonthIndex = (m - 2 + 12) % 12; // 0-11
     let prevYear = (m === 1) ? y - 1 : y;
 
-    // último dia do mês anterior
-    const lastDayNum = new Date(prevYear, prevMonthIndex + 1, 0).getDate();
+    // iniciar no dia 20 e avançar até completar cinco dias úteis
     const days = [];
-    for (let d = lastDayNum; d >= 1 && days.length < 5; d--) {
+    for (let d = 20; days.length < 5; d++) {
       const date = new Date(prevYear, prevMonthIndex, d);
       const day = date.getDay();
       if (day !== 0 && day !== 6) { // 0 = domingo, 6 = sábado
         days.push(date);
       }
     }
-    return days.reverse(); // ordena do mais antigo ao mais recente
+    return days;
   }
 
   function atualizarPeriodo() {
@@ -90,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ultimoDiaPeriodo = '';
       return;
     }
-    const dias = lastFiveBusinessDays(mes, ano);
+    const dias = firstFiveBusinessDaysFrom20(mes, ano);
     if (dias.length === 0) {
       periodoEl.value = '';
       ultimoDiaPeriodo = '';
@@ -188,6 +197,7 @@ function coletarDados() {
   const anoEl = document.getElementById('anoMedicao');
 
   const dados = {
+    usuario: document.getElementById('usuario').value.trim(),
     contratada: document.getElementById('contratada').value.trim(),
     cnpj: document.getElementById('cnpj').value.trim(),
     contratante: document.getElementById('contratante').value.trim(),
@@ -201,6 +211,7 @@ function coletarDados() {
     vencimentoNF: document.getElementById('vencimentoNF').value.trim(),
     mesMedicao: mesEl?.value?.trim() || '',
     anoMedicao: anoEl?.value?.trim() || '',
+    nMedicao: document.getElementById('nMedicao').value.trim() || '',
     //logoUrl: logoUrl,
     servicos
   };
@@ -213,6 +224,7 @@ function validarFormulario() {
   const dados = coletarDados();
   const erros = [];
 
+  if (!dados.usuario) erros.push('Usuário é obrigatório');
   if (!dados.contratada) erros.push('Contratada é obrigatória');
   if (!dados.cnpj) erros.push('CNPJ é obrigatório');
   if (!dados.contratante) erros.push('Contratante é obrigatório');
@@ -229,6 +241,46 @@ function validarFormulario() {
   }
 
   return true;
+}
+
+async function carregarUsuarios() {
+  try {
+    const response = await fetch('/api/boletim/usuarios');
+    if (!response.ok) throw new Error('Erro ao carregar usuários');
+
+    const usuarios = await response.json();
+    const select = document.getElementById('usuario');
+
+    usuarios.forEach(usuario => {
+      const option = document.createElement('option');
+      option.value = usuario.nome;
+      option.textContent = usuario.nome;
+      select.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar usuários:', error);
+  }
+}
+
+async function carregarMedicoes() {
+  try {
+    const response = await fetch('/api/boletim/medicoes');
+    if (!response.ok) throw new Error('Erro ao consultar medições');
+
+    const medicoes = await response.json();
+    const lista = document.getElementById('lista-medicoes');
+
+    medicoes.forEach(medicao => {
+      if (!medicao.idMedicao) return;
+
+      const option = document.createElement('option');
+      option.value = medicao.idMedicao;
+      option.label = `${medicao.contratada || ''} - ${medicao.periodo || ''}`;
+      lista.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Erro ao consultar medições:', error);
+  }
 }
 
 async function mostrarPreview() {
@@ -265,6 +317,7 @@ function exibirPreview(boletim) {
 
   let html = `
     <div style="margin-bottom: 20px;">
+      <p><strong>Número da Medição:</strong> ${boletim.nMedicao}</p>
       <p><strong>Contratada:</strong> ${boletim.contratada}</p>
       <p><strong>CNPJ:</strong> ${boletim.cnpj}</p>
       <p><strong>Contratante:</strong> ${boletim.contratante}</p>
@@ -351,6 +404,7 @@ async function gerarExcel() {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 
+    limparFormularioAposExportacao();
     alert('✅ Excel gerado e baixado com sucesso!');
   } catch (error) {
     console.error('[✗] Erro:', error);
@@ -358,6 +412,89 @@ async function gerarExcel() {
   } finally {
     loading.classList.add('hidden');
   }
+}
+
+function limparFormularioAposExportacao() {
+  const formulario = document.getElementById('formularioBoletim');
+  const usuario = document.getElementById('usuario');
+  const usuarioSelecionado = usuario.value;
+
+  formulario.reset();
+  usuario.value = usuarioSelecionado;
+
+  const container = document.getElementById('servicos-container');
+  const servicos = container.querySelectorAll('.servico-item');
+  servicos.forEach((servico, index) => {
+    if (index > 0) {
+      servico.remove();
+      return;
+    }
+
+    servico.querySelectorAll('input').forEach(input => {
+      input.value = '';
+    });
+  });
+  servicoAtual = 1;
+  ultimoDiaPeriodo = '';
+
+  const idMedicaoPesquisa = document.getElementById('id-medicao-pesquisa');
+  const resultadoMedicao = document.getElementById('resultado-medicao');
+  if (idMedicaoPesquisa) idMedicaoPesquisa.value = '';
+  if (resultadoMedicao) resultadoMedicao.textContent = '';
+
+  const camposNovaContratada = document.getElementById('new-contratada-fields');
+  const btnNovaContratada = document.getElementById('new-contratada');
+  if (camposNovaContratada) camposNovaContratada.hidden = true;
+  if (btnNovaContratada) btnNovaContratada.value = '➕ Cadastrar Nova Contratada';
+}
+
+async function carregarMedicao(idMedicao) {
+  const resultado = document.getElementById('resultado-medicao');
+  const id = idMedicao.trim();
+
+  if (!id) {
+    resultado.textContent = 'Digite o ID da medição.';
+    return;
+  }
+
+  try {
+    resultado.textContent = 'Consultando...';
+    const response = await fetch(`/api/boletim/medicoes/${encodeURIComponent(id)}`);
+    if (!response.ok) {
+      if (response.status === 404) throw new Error('Medição não encontrada.');
+      throw new Error('Erro ao carregar medição.');
+    }
+
+    preencherFormulario(await response.json());
+    resultado.textContent = `Medição ${id} carregada.`;
+  } catch (error) {
+    resultado.textContent = error.message;
+  }
+}
+
+function preencherFormulario(medicao) {
+  const campos = ['usuario', 'contratada', 'cnpj', 'contratante', 'objeto', 'numeroProjeto',
+    'nPedido', 'dataInicio', 'periodo', 'vencimentoNF'];
+  campos.forEach(campo => {
+    const elemento = document.getElementById(campo);
+    if (elemento) elemento.value = medicao[campo] || '';
+  });
+  ['mesMedicao', 'anoMedicao'].forEach(campo => {
+    const elemento = document.getElementById(campo);
+    if (elemento) elemento.value = medicao[campo] || '';
+  });
+
+  const container = document.getElementById('servicos-container');
+  container.innerHTML = '';
+  (medicao.servicos || []).forEach(servico => {
+    adicionarServico();
+    const item = container.lastElementChild;
+    item.querySelector('.descricao').value = servico.descricao || '';
+    item.querySelector('.quantidade').value = servico.quantidade || '';
+    item.querySelector('.quantidadeAtual').value = servico.quantidadeAtual || '';
+    item.querySelector('.quantidadeAnterior').value = servico.quantidadeAnterior || '';
+    item.querySelector('.precoUnitario').value = servico.precoUnitario || '';
+  });
 }
 
 async function carregarContratantes() {

@@ -4,6 +4,8 @@ const path = require('path');
 const fs = require('fs');
 const ContratantesConfig = require('../utils/contratantesConfig');
 const ContratadasConfig = require('../utils/contratadasConfig');
+const UsuariosConfig = require('../utils/usuariosConfig');
+const GoogleSheetsService = require('../services/GoogleSheetsService');
 
 const router = express.Router();
 
@@ -12,6 +14,7 @@ function validarDadosBoletim(dados) {
   const erros = [];
 
   if (!dados.contratada?.trim()) erros.push('Contratada é obrigatória');
+  if (!dados.usuario?.trim()) erros.push('Usuário é obrigatório');
   if (!dados.cnpj?.trim()) erros.push('CNPJ é obrigatório');
   if (!dados.contratante?.trim()) erros.push('Contratante é obrigatório');
   if (!dados.objeto?.trim()) erros.push('Objeto é obrigatório');
@@ -66,6 +69,13 @@ router.post('/excel', async (req, res) => {
 
     if (erros.length > 0) {
       return res.status(400).json({ error: 'Dados inválidos', detalhes: erros });
+    }
+
+    const registro = await GoogleSheetsService.salvar(dados);
+    if (registro) {
+      dados.idMedicao = registro.idMedicao;
+      dados.servicos = registro.servicos;
+      res.setHeader('X-Medicao-ID', registro.idMedicao);
     }
 
     // Se não tiver logo, buscar do contratante
@@ -166,6 +176,15 @@ router.get('/contratadas', (req, res) => {
   }
 });
 
+router.get('/usuarios', (req, res) => {
+  try {
+    res.json(UsuariosConfig.obterTodos());
+  } catch (error) {
+    console.error('Erro ao obter lista de usuários:', error);
+    res.status(500).json({ error: 'Erro ao obter lista de usuários' });
+  }
+});
+
 router.post('/contratadas', (req, res) => {
   try {
     const { nome, cnpj } = req.body;
@@ -185,6 +204,26 @@ router.post('/contratadas', (req, res) => {
   } catch (error) {
     console.error('Erro ao salvar contratada:', error);
     res.status(500).json({ error: 'Erro ao salvar contratada' });
+  }
+});
+
+router.get('/medicoes', async (req, res) => {
+  try {
+    res.json(await GoogleSheetsService.listar());
+  } catch (error) {
+    console.error('Erro ao consultar medições:', error);
+    res.status(500).json({ error: 'Erro ao consultar medições' });
+  }
+});
+
+router.get('/medicoes/:id', async (req, res) => {
+  try {
+    const medicao = await GoogleSheetsService.buscar(req.params.id);
+    if (!medicao) return res.status(404).json({ error: 'Medição não encontrada' });
+    res.json(medicao);
+  } catch (error) {
+    console.error('Erro ao consultar medição:', error);
+    res.status(500).json({ error: 'Erro ao consultar medição' });
   }
 });
 

@@ -1,0 +1,20 @@
+{
+  "usuarios": [
+    {
+      "id": "user-001",
+      "nome": "Lucas Ucelle"
+    },
+    {
+      "id": "user-002",
+      "nome": "Renata Colpo"
+    },
+    {
+      "id": "user-003",
+      "nome": "Heitor Mafra"
+    },
+    {
+      "id": "user-004",
+      "nome": "Julia Lobo"
+    }
+  ]
+}

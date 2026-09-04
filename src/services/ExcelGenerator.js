@@ -122,6 +122,7 @@ class ExcelGenerator {
       const contratante = dados.contratante || 'N/A';
       const objeto = (dados.objeto || 'N/A').toUpperCase();
       const periodo = dados.periodo || 'N/A';
+      const nMedicao = dados.nMedicao || 'N/A';
       const numeroProjeto = dados.numeroProjeto || 'N/A';
       const nPedido = dados.nPedido || 'N/A';
       const dataInicio = this.formatarDataInicio(dados.dataInicio);
@@ -138,6 +139,7 @@ class ExcelGenerator {
       worksheet.getCell('E7').value = numeroProjeto;
       worksheet.getCell('T3').value = periodo;
       worksheet.getCell('T4').value = nPedido;
+      worksheet.getCell('S2').value = nMedicao;
       worksheet.getCell('T5').value = `${vencimentoNF} DD`;
       worksheet.getCell('T6').value = dataInicio;
       worksheet.getCell('T7').value = dataFim;
