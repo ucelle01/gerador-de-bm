@@ -1,5 +1,6 @@
 const BoletimService = require('../services/BoletimService');
 const ExcelGenerator = require('../services/ExcelGenerator');
+const GoogleSheetsService = require('../services/GoogleSheetsService');
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
@@ -20,21 +21,72 @@ class BoletimController {
       console.log('Boletim criado:', boletim);
       
       // Criar pasta de saída se não existir
-      const outputDir = path.join(__dirname, '../../generated'); // Usar caminho absoluto para pasta de saída
+      const outputDir = path.join(__dirname, '../../generated');
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
       }
 
-      const nomeArquivo = `boletim_${boletim.id}.xlsx`; // Usar ID do boletim para nome do arquivo
-      const caminhoArquivo = path.join(outputDir, nomeArquivo); // Gerar caminho completo do arquivo
+      const nomeArquivo = `boletim_${boletim.id}.xlsx`;
+      const caminhoArquivo = path.join(outputDir, nomeArquivo);
       
       console.log('Gerando Excel em:', caminhoArquivo);
-      // Passar o ID da contratante para selecionar o template apropriado
-      await ExcelGenerator.gerarBoletim(boletim, caminhoArquivo, null, req.body.idContratante);
-      console.log('Excel gerado com sucesso');
+      
+      // Preparar operações paralelas
+      const operacoes = [
+        ExcelGenerator.gerarBoletim(boletim, caminhoArquivo, null, req.body.idContratante)
+      ];
 
+      // Adicionar operação de salvar em Google Sheets se estiver configurado
+      if (GoogleSheetsService.isConfigured()) {
+        console.log('[⚡] Google Sheets configurado - salvando dados em paralelo');
+        
+        // Mapear dados do boletim para o formato esperado pelo GoogleSheetsService
+        const dadosGoogleSheets = {
+          idMedicao: boletim.id,
+          contratada: boletim.empresa,
+          cnpj: req.body.cnpj || 'N/A',
+          contratante: boletim.contratante,
+          objeto: boletim.nomeObra,
+          numeroProjeto: boletim.numeroProjeto,
+          nPedido: req.body.nPedido || '',
+          mesMedicao: req.body.mesMedicao || '',
+          anoMedicao: req.body.anoMedicao || '',
+          nMedicao: req.body.nMedicao || '',
+          periodo: boletim.periodo,
+          dataInicio: req.body.dataInicio || '',
+          dataFim: req.body.dataFim || '',
+          vencimentoNF: req.body.vencimentoNF || '',
+          usuario: req.body.usuario || '',
+          servicos: boletim.servicos.map(s => ({
+            descricao: s.descricao,
+            quantidade: s.quantidade,
+            quantidadeAtual: s.quantidadeAtual || 0,
+            quantidadeAnterior: s.quantidadeAnterior || 0,
+            precoUnitario: s.precoUnitario
+          }))
+        };
+
+        operacoes.push(
+          GoogleSheetsService.salvar(dadosGoogleSheets).catch(err => {
+            console.warn('[⚠] Erro ao salvar em Google Sheets:', err.message);
+            // Não falhar a requisição se Google Sheets falhar
+            return null;
+          })
+        );
+      }
+
+      // Executar todas as operações em paralelo
+      console.log('[⚡] Executando operações em paralelo...');
+      const resultados = await Promise.all(operacoes);
+      console.log('[✓] Excel gerado com sucesso');
+
+      // Enviar o arquivo
       res.download(caminhoArquivo, nomeArquivo, (err) => {
-        if (err) console.error('Erro ao fazer download:', err);
+        if (err) {
+          console.error('Erro ao fazer download:', err);
+        } else {
+          console.log('[✓] Download iniciado com sucesso');
+        }
       });
     } catch (error) {
       console.error('Erro ao gerar Excel:', error);

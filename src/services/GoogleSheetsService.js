@@ -18,6 +18,10 @@ const SERVICOS_HEADERS = [
 const CONTRATADAS_HEADERS = ['id', 'nome', 'cnpj', 'dataCadastro'];
 
 class GoogleSheetsService {
+  // Cache para cabecalhos por spreadsheet
+  static headersCache = new Map();
+  static CACHE_TIMEOUT = 5 * 60 * 1000; // 5 minutos
+  
   static getSpreadsheetId() {
     if (process.env.GOOGLE_SHEET_ID) return process.env.GOOGLE_SHEET_ID;
     const match = process.env.GOOGLE_SHEET_URL?.match(/\/spreadsheets\/d\/([^/]+)/);
@@ -54,8 +58,22 @@ class GoogleSheetsService {
     return google.sheets({ version: 'v4', auth });
   }
 
+  static isCacheValido(spreadsheetId) {
+    const cached = this.headersCache.get(spreadsheetId);
+    if (!cached) return false;
+    return Date.now() - cached.timestamp < this.CACHE_TIMEOUT;
+  }
+
   static async garantirCabecalhos(sheets) {
     const spreadsheetId = this.getSpreadsheetId();
+    
+    // Verificar cache
+    if (this.isCacheValido(spreadsheetId)) {
+      console.log('[⚡] Cache de cabecalhos válido, pulando verificação');
+      return;
+    }
+
+    // Buscar informações da planilha
     const planilha = await sheets.spreadsheets.get({
       spreadsheetId,
       fields: 'sheets.properties.title'
@@ -63,40 +81,62 @@ class GoogleSheetsService {
     const abas = new Set((planilha.data.sheets || []).map(sheet => sheet.properties.title));
     const nomesAbas = ['Medicoes', 'MedicaoServicos', 'Contratadas'];
 
-    for (const nomeAba of nomesAbas) {
-      if (!abas.has(nomeAba)) {
-        await sheets.spreadsheets.batchUpdate({
-          spreadsheetId,
-          requestBody: { requests: [{ addSheet: { properties: { title: nomeAba } } }] }
-        });
-      }
+    // Preparar requisições de criação de abas faltantes
+    const abasParaCriar = nomesAbas.filter(aba => !abas.has(aba));
+    if (abasParaCriar.length > 0) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId,
+        requestBody: {
+          requests: abasParaCriar.map(nomeAba => ({
+            addSheet: { properties: { title: nomeAba } }
+          }))
+        }
+      });
     }
 
+    // Verificar cabecalhos em paralelo
     const ranges = [
       { range: 'Medicoes!A1:P1', headers: MEDICOES_HEADERS },
       { range: 'MedicaoServicos!A1:G1', headers: SERVICOS_HEADERS },
       { range: 'Contratadas!A1:D1', headers: CONTRATADAS_HEADERS }
     ];
 
-    for (const item of ranges) {
-      const resposta = await sheets.spreadsheets.values.get({
-        spreadsheetId,
-        range: item.range
-      });
-      if (!resposta.data.values?.length) {
-        await sheets.spreadsheets.values.update({
+    const verificacoes = await Promise.all(
+      ranges.map(item => 
+        sheets.spreadsheets.values.get({
           spreadsheetId,
+          range: item.range
+        }).then(resposta => ({
           range: item.range,
-          valueInputOption: 'RAW',
-          requestBody: { values: [item.headers] }
-        });
-      }
+          headers: item.headers,
+          temCabecalho: resposta.data.values?.length > 0
+        }))
+      )
+    );
+
+    // Preparar atualizações de cabecalhos faltantes
+    const atualizacoes = verificacoes
+      .filter(v => !v.temCabecalho)
+      .map(v => ({
+        range: v.range,
+        majorDimension: 'ROWS',
+        values: [v.headers]
+      }));
+
+    // Se houver atualizações, fazer tudo em um batchUpdate
+    if (atualizacoes.length > 0) {
+      await sheets.spreadsheets.values.batchUpdate({
+        spreadsheetId,
+        requestBody: { data: atualizacoes, valueInputOption: 'RAW' }
+      });
     }
 
+    // Verificar e adicionar contratadas em paralelo (sem bloquear)
     const contratadasResposta = await sheets.spreadsheets.values.get({
       spreadsheetId,
       range: 'Contratadas!A2:D'
     });
+
     if (!contratadasResposta.data.values?.length) {
       const contratadas = ContratadasConfig.obterTodos();
       if (contratadas.length) {
@@ -115,6 +155,9 @@ class GoogleSheetsService {
         });
       }
     }
+
+    // Marcar cache como válido
+    this.headersCache.set(spreadsheetId, { timestamp: Date.now() });
   }
 
   static async listarContratadas() {
@@ -199,44 +242,55 @@ class GoogleSheetsService {
       soma + (Number(servico.quantidadeAtual) * Number(servico.precoUnitario))
     ), 0);
 
-    await sheets.spreadsheets.values.append({
-      spreadsheetId,
-      range: 'Medicoes!A:P',
-      valueInputOption: 'USER_ENTERED',
-      requestBody: {
-        values: [[
-          idMedicao,
-          new Intl.DateTimeFormat('pt-BR', {
-            timeZone: 'America/Sao_Paulo',
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          }).format(new Date()).replace(',', ''),
-          dados.contratada, dados.cnpj,
-          dados.contratante, dados.objeto,
-          dados.numeroProjeto, dados.nPedido || '', dados.mesMedicao || '',
-          dados.anoMedicao || '', dados.nMedicao, dados.periodo, dados.dataInicio,
-          dados.vencimentoNF, total, dados.usuario || ''
-        ]]
-      }
-    });
+    // Preparar dados para Medicoes
+    const dataFormatada = new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(new Date()).replace(',', '');
 
-    if (servicos.length) {
-      await sheets.spreadsheets.values.append({
+    const medicaoData = [[
+      idMedicao, dataFormatada,
+      dados.contratada, dados.cnpj,
+      dados.contratante, dados.objeto,
+      dados.numeroProjeto, dados.nPedido || '', dados.mesMedicao || '',
+      dados.anoMedicao || '', dados.nMedicao, dados.periodo, dados.dataInicio,
+      dados.vencimentoNF, total, dados.usuario || ''
+    ]];
+
+    // Preparar dados para Servicos
+    const servicosData = servicos.map(servico => [
+      idMedicao, servico.idServico, servico.descricao, servico.quantidade,
+      servico.quantidadeAtual, servico.quantidadeAnterior, servico.precoUnitario
+    ]);
+
+    // Executar ambas as operações em paralelo
+    const operacoes = [
+      sheets.spreadsheets.values.append({
         spreadsheetId,
-        range: 'MedicaoServicos!A:G',
+        range: 'Medicoes!A:P',
         valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: servicos.map(servico => [
-            idMedicao, servico.idServico, servico.descricao, servico.quantidade,
-            servico.quantidadeAtual, servico.quantidadeAnterior, servico.precoUnitario
-          ])
-        }
-      });
+        requestBody: { values: medicaoData }
+      })
+    ];
+
+    if (servicos.length > 0) {
+      operacoes.push(
+        sheets.spreadsheets.values.append({
+          spreadsheetId,
+          range: 'MedicaoServicos!A:G',
+          valueInputOption: 'USER_ENTERED',
+          requestBody: { values: servicosData }
+        })
+      );
     }
+
+    // Executar operações em paralelo
+    await Promise.all(operacoes);
 
     return { idMedicao, servicos, total };
   }

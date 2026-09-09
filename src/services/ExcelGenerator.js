@@ -129,20 +129,24 @@ class ExcelGenerator {
       const vencimentoNF = dados.vencimentoNF || 'N/A';
       const dataFim = dados.dataFim || 'N/A';
 
-      // Preencher célula E3 com contratada e CNPJ
-      const celE3 = worksheet.getCell('E3');
-      celE3.value = `${contratada}\nCNPJ: ${cnpj}`;
+      // Batch update de cabeçalhos - preenchendo todas de uma vez
+      const headerCells = [
+        { cell: 'E3', value: `${contratada}\nCNPJ: ${cnpj}` },
+        { cell: 'J3', value: contratante },
+        { cell: 'D5', value: objeto },
+        { cell: 'E7', value: numeroProjeto },
+        { cell: 'T3', value: periodo },
+        { cell: 'T4', value: nPedido },
+        { cell: 'S2', value: nMedicao },
+        { cell: 'T5', value: `${vencimentoNF} DD` },
+        { cell: 'T6', value: dataInicio },
+        { cell: 'T7', value: dataFim }
+      ];
 
-      // Informações do contratante
-      worksheet.getCell('J3').value = contratante;
-      worksheet.getCell('D5').value = objeto;
-      worksheet.getCell('E7').value = numeroProjeto;
-      worksheet.getCell('T3').value = periodo;
-      worksheet.getCell('T4').value = nPedido;
-      worksheet.getCell('S2').value = nMedicao;
-      worksheet.getCell('T5').value = `${vencimentoNF} DD`;
-      worksheet.getCell('T6').value = dataInicio;
-      worksheet.getCell('T7').value = dataFim;
+      // Aplicar todas as células de header em uma operação
+      headerCells.forEach(({ cell, value }) => {
+        worksheet.getCell(cell).value = value;
+      });
 
       // Mês/Ano para abreviação
       if (dados.mesMedicao && dados.anoMedicao) {
@@ -160,31 +164,36 @@ class ExcelGenerator {
       if (servicos.length === 0) {
         worksheet.getCell(`B${startRow}`).value = 'Nenhum serviço adicionado';
       } else {
-        // Preencher todas as linhas de serviços
+        // Pré-preparar todas as linhas de serviços para melhor performance
+        const servicosData = [];
         servicos.forEach((servico, index) => {
           const currentRow = startRow + index;
-          // Preenchendo as colunas
-          worksheet.getCell(`C${currentRow}`).value = index + 1; //ITEM
-          worksheet.getCell(`D${currentRow}`).value = servico.descricao;
-          worksheet.getCell(`G${currentRow}`).value = { formula: 'E7' }; //CC
-          //CONTRATADO
-          worksheet.getCell(`H${currentRow}`).value = servico.quantidade; //UN
-          worksheet.getCell(`I${currentRow}`).value = servico.precoUnitario;
-          worksheet.getCell(`J${currentRow}`).value = { formula: `H${currentRow}*I${currentRow}` };
-          //MEDIÇÂO ATUAL
-          worksheet.getCell(`K${currentRow}`).value = servico.quantidadeAtual;
-          worksheet.getCell(`M${currentRow}`).value = { formula: `IF(K${currentRow}="","",I${currentRow})` }; //PREÇO UNITÁRIO DO SERVIÇO - MEDIÇÃO ATUAL
-          worksheet.getCell(`N${currentRow}`).value = { formula: `IF(K${currentRow}="","",M${currentRow}*K${currentRow})` }; //PREÇO TOTAL DO SERVIÇO - MEDIÇÃO ATUAL
-          //MEDIÇÃO ACUMULADA
-          worksheet.getCell(`O${currentRow}`).value = servico.quantidadeAnterior;
-          worksheet.getCell(`P${currentRow}`).value = { formula: `O${currentRow}*I${currentRow}` }; //MEDIÇOES ANTERIORES
-          worksheet.getCell(`Q${currentRow}`).value = { formula: `N${currentRow}` }; //VALOR MEDIDO NO MÊS
-          worksheet.getCell(`R${currentRow}`).value = { formula: `P${currentRow}+IF(Q${currentRow}="",0,Q${currentRow})` }; //ACUMULADO
-          //SALDO
-          worksheet.getCell(`S${currentRow}`).value = { formula: `IF(J${currentRow}=0,0,R${currentRow}/J${currentRow})` }; //AVANÇO
-          worksheet.getCell(`T${currentRow}`).value = { formula: `H${currentRow}-(K${currentRow}+O${currentRow})` }; //QUANT.
-          worksheet.getCell(`U${currentRow}`).value = { formula: `J${currentRow}-R${currentRow}` }; //VALOR
+          servicosData.push(
+            { cell: `C${currentRow}`, value: index + 1 },
+            { cell: `D${currentRow}`, value: servico.descricao },
+            { cell: `G${currentRow}`, value: { formula: 'E7' } },
+            { cell: `H${currentRow}`, value: servico.quantidade },
+            { cell: `I${currentRow}`, value: servico.precoUnitario },
+            { cell: `J${currentRow}`, value: { formula: `H${currentRow}*I${currentRow}` } },
+            { cell: `K${currentRow}`, value: servico.quantidadeAtual },
+            { cell: `M${currentRow}`, value: { formula: `IF(K${currentRow}="","",I${currentRow})` } },
+            { cell: `N${currentRow}`, value: { formula: `IF(K${currentRow}="","",M${currentRow}*K${currentRow})` } },
+            { cell: `O${currentRow}`, value: servico.quantidadeAnterior },
+            { cell: `P${currentRow}`, value: { formula: `O${currentRow}*I${currentRow}` } },
+            { cell: `Q${currentRow}`, value: { formula: `N${currentRow}` } },
+            { cell: `R${currentRow}`, value: { formula: `P${currentRow}+IF(Q${currentRow}="",0,Q${currentRow})` } },
+            { cell: `S${currentRow}`, value: { formula: `IF(J${currentRow}=0,0,R${currentRow}/J${currentRow})` } },
+            { cell: `T${currentRow}`, value: { formula: `H${currentRow}-(K${currentRow}+O${currentRow})` } },
+            { cell: `U${currentRow}`, value: { formula: `J${currentRow}-R${currentRow}` } }
+          );
         });
+
+        // Aplicar todas as células em uma passada
+        servicosData.forEach(({ cell, value }) => {
+          worksheet.getCell(cell).value = value;
+        });
+
+        // Ocultar linhas vazias em lote
         for (let i = startRow + servicos.length; i < startRow + 26; i++) {
           const linha = worksheet.getRow(i);
           linha.hidden = true;
