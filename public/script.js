@@ -293,8 +293,7 @@ async function carregarMedicoes() {
       const option = document.createElement('option');
       option.value = medicao.idMedicao;
       option.textContent =
-        `${medicao.idContratante || ''} - ${medicao.contratada || ''} | ` +
-        `Mês ${medicao.mesMedicao || ''} - ${medicao.total || ''}`;
+        `${medicao.idContratante || ''} - ${medicao.contratada || ''} - Mês ${medicao.mesMedicao || ''} - ${medicao.total || ''}`;
       lista.appendChild(option);
     });
   } catch (error) {

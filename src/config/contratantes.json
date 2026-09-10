@@ -26,7 +26,7 @@
     },
     {
       "id": "HSF-ES",
-      "nome": "HOSPITAL E MATERNIDADE SÃO FRANCISCO DE ASSIM S.A.",
+      "nome": "HOSPITAL E MATERNIDADE SÃO FRANCISCO DE ASSIS S.A.",
       "sigla": "HSF (ES)",
       "logo": "logos/LOGO_HSFES.png"
     },
@@ -80,8 +80,8 @@
     },
     {
       "id": "HSMC-MT",
-      "nome": "HOSPITAL E MATERNIDADE SÃO MATEUS LTDA",
-      "sigla": "HSM (MT)",
+      "nome": "HOSPITAL E MATERNIDADE SÃO MATEUS CUIABA LTDA",
+      "sigla": "HSMC (MT)",
       "logo": "logos/LOGO_HSMCMT.png"
     },
     {
@@ -92,14 +92,26 @@
     },
     {
       "id": "OTOA-CE",
-      "nome": "HOSPITAL OTOCLINICA LTDA",
+      "nome": "HOSPITAL OTO ALDEOTA",
       "sigla": "OTO A (CE)",
       "logo": "logos/LOGO_OTOACE.png"
     },
     {
-      "id": "OTOC-CE",
-      "nome": "OTOIMAGEM DIAGNOSTICOS S.A.",
-      "sigla": "OTO C (CE)",
+      "id": "OTOSD-CE",
+      "nome": "HOSPITAL OTO SANTOS DUMONT",
+      "sigla": "OTO SD (CE)",
+      "logo": "logos/LOGO_OTOSDCE.png"
+    },
+    {
+      "id": "OTOM-CE",
+      "nome": "HOSPITAL OTO MEIRELES",
+      "sigla": "OTO M (CE)",
+      "logo": "logos/LOGO_OTOMCE.png"
+    },
+    {
+      "id": "OTOIMAGEM-CE",
+      "nome": "HOSPITAL OTO CAUCAIA",
+      "sigla": "OTO IMAGEM (CE)",
       "logo": "logos/LOGO_OTOCCE.png"
     }
   ]
