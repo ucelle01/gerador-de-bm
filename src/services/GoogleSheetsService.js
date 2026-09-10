@@ -255,7 +255,7 @@ class GoogleSheetsService {
 
     const medicaoData = [[
       idMedicao, dataFormatada,
-      dados.contratada, dados.cnpj,
+      dados.contratada, dados.cnpj, dados.idContratante || 'N/A',
       dados.contratante, dados.objeto,
       dados.numeroProjeto, dados.nPedido || '', dados.mesMedicao || '',
       dados.anoMedicao || '', dados.nMedicao, dados.periodo, dados.dataInicio,
