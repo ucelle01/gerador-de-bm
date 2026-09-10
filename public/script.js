@@ -292,7 +292,7 @@ async function carregarMedicoes() {
 
       const option = document.createElement('option');
       option.value = medicao.idMedicao;
-      option.label = `${medicao.contratada || ''} - ${medicao.periodo || ''}`;
+      option.label = `${medicao.contratada || ''} - ${medicao.mesMedicao || ''} -${medicao.total || ''}`;
       lista.appendChild(option);
     });
   } catch (error) {
