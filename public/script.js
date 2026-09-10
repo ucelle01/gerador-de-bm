@@ -47,13 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (newCnpjInput) {
     newCnpjInput.addEventListener('input', formatarCNPJ);
   }
- 
+
   // CORRIGIDO: Carregar contratantes ao iniciar
   carregarContratantes();
   carregarContratadas();
   carregarUsuarios();
   carregarMedicoes();
-  
+
   const mesEl = document.getElementById('mesMedicao');
   const anoEl = document.getElementById('anoMedicao');
   const periodoEl = document.getElementById('periodo');
@@ -292,7 +292,9 @@ async function carregarMedicoes() {
 
       const option = document.createElement('option');
       option.value = medicao.idMedicao;
-      option.label = `${medicao.contratada || ''} - ${medicao.mesMedicao || ''} -${medicao.total || ''}`;
+      option.textContent =
+        `${medicao.idContratante || ''} - ${medicao.contratada || ''} | ` +
+        `Mês ${medicao.mesMedicao || ''} - ${medicao.total || ''}`;
       lista.appendChild(option);
     });
   } catch (error) {
@@ -305,7 +307,7 @@ async function mostrarPreview() {
 
   const dados = coletarDados();
   const loading = document.getElementById('loading');
-  
+
   try {
     loading.classList.remove('hidden');
 
@@ -415,7 +417,7 @@ async function gerarExcel() {
 
     const blob = await response.blob();
     console.log('[✓] Excel recebido, tamanho:', blob.size, 'bytes');
-    
+
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -539,10 +541,10 @@ async function carregarContratantes() {
   try {
     const response = await fetch('/api/boletim/contratantes');
     if (!response.ok) throw new Error('Erro ao carregar contratantes');
-    
+
     const contratantes = await response.json();
     const select = document.getElementById('contratante');
-    
+
     contratantes.forEach(contratante => {
       const option = document.createElement('option');
       option.value = contratante.nome;
@@ -553,7 +555,7 @@ async function carregarContratantes() {
       option.dataset.sigla = contratante.sigla;
       select.appendChild(option);
     });
-    
+
     // Adicionar listener para mostrar logo e sigla
     select.addEventListener('change', async (e) => {
       const option = e.target.options[e.target.selectedIndex];
@@ -687,16 +689,16 @@ window.addEventListener('click', (e) => {
   const modal = document.getElementById('preview-modal');
   if (e.target === modal) {
     fecharPreview();
-  } 
+  }
 });
 
 function formatarCNPJ(event) {
   let valor = event.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
-  
+
   if (valor.length > 14) {
     valor = valor.slice(0, 14); // Limita a 14 dígitos
   }
-  
+
   // Aplica o formato: xx.xxx.xxx/xxxx-xx
   if (valor.length <= 2) {
     event.target.value = valor;

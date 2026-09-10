@@ -5,7 +5,7 @@ const fs = require('fs');
 const ContratadasConfig = require('../utils/contratadasConfig');
 
 const MEDICOES_HEADERS = [
-  'id_Medicao', 'data_Medicao', 'Contratada', 'CNPJ_Contratada', 'Contratante',
+  'id_Medicao', 'data_Medicao', 'Contratada', 'CNPJ_Contratada', 'idContratante', 'Contratante',
   'Servico_Contratado', 'n_Centro_Custo', 'n_Pedido', 'mes_Medicao', 'ano_Medicao',
   'n_Medicao', 'Periodo', 'data_Inicio', 'vencimento_NF', 'Total', 'Usuario'
 ];
@@ -354,18 +354,19 @@ class GoogleSheetsService {
       dataMedicao: linha[1] || '',
       contratada: linha[2] || '',
       cnpj: linha[3] || '',
-      contratante: linha[4] || '',
-      objeto: linha[5] || '',
-      numeroProjeto: linha[6] || '',
-      nPedido: linha[7] || '',
-      mesMedicao: linha[8] || '',
-      anoMedicao: linha[9] || '',
-      nMedicao: linha[10] || '',
-      periodo: linha[11] || '',
-      dataInicio: linha[12] || '',
-      vencimentoNF: linha[13] || '',
-      total: linha[14] || '',
-      usuario: linha[15] || '',
+      idContratante: linha[4] || '',
+      contratante: linha[5] || '',
+      objeto: linha[6] || '',
+      numeroProjeto: linha[7] || '',
+      nPedido: linha[8] || '',
+      mesMedicao: linha[9] || '',
+      anoMedicao: linha[10] || '',
+      nMedicao: linha[11] || '',
+      periodo: linha[12] || '',
+      dataInicio: linha[13] || '',
+      vencimentoNF: linha[14] || '',
+      total: linha[15] || '',
+      usuario: linha[16] || '',
       servicos: []
     };
   }

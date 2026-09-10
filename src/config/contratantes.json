@@ -1,103 +1,103 @@
 {
   "contratantes": [
     {
-      "id": "HPCES",
+      "id": "HPC-ES",
       "nome": "HOSPITAL PRAIA DA COSTA S.A.",
       "sigla": "HPC (ES)",
       "logo": "logos/LOGO_HPCES.png"
     },
     {
-      "id": "HMVES",
+      "id": "HMV-ES",
       "nome": "MATERNIDADE SANTA URSULA",
       "sigla": "HMV (ES)",
       "logo": "logos/LOGO_HMVES.png"
     },
     {
-      "id": "HMCES",
+      "id": "HMC-ES",
       "nome": "HOSPITAL MERIDIONAL S.A",
       "sigla": "HMC (ES)",
       "logo": "logos/LOGO_HMCES.png"
     },
     {
-      "id": "HMSES",
+      "id": "HMS-ES",
       "nome": "HOSPITAL METROPOLITANO S.A.",
       "sigla": "HMS (ES)",
       "logo": "logos/LOGO_HMSES.png"
     },
     {
-      "id": "HSFES",
+      "id": "HSF-ES",
       "nome": "HOSPITAL E MATERNIDADE SÃO FRANCISCO DE ASSIM S.A.",
       "sigla": "HSF (ES)",
       "logo": "logos/LOGO_HSFES.png"
     },
     {
-      "id": "HSLES",
+      "id": "HSL-ES",
       "nome": "HOSPITAL SÃO LUIZ S.A.",
       "sigla": "HSL (ES)",
       "logo": "logos/LOGO_HSLES.png"
     },
     {
-      "id": "HMSMES",
+      "id": "HMSM-ES",
       "nome": "HOSPITAL MERIDIONAL SÃO MATEUS S.A.",
       "sigla": "HMSM (ES)",
       "logo": "logos/LOGO_HMSMES.png"
     },
     {
-      "id": "HATDF",
+      "id": "HAT-DF",
       "nome": "HOSPITAL ANCHIETA S.A.",
       "sigla": "HAT (DF)",
       "logo": "logos/LOGO_HATDF.png"
     },
     {
-      "id": "HACDF",
+      "id": "HAC-DF",
       "nome": "SERVICOS HOSPITALARES YUGE S.A.",
       "sigla": "HAC (DF)",
       "logo": "logos/LOGO_HACDF.png"
     },
     {
-      "id": "HENDF",
+      "id": "HEN-DF",
       "nome": "HOSPITAL ENCORE LTDA",
       "sigla": "HEN (DF)",
       "logo": "logos/LOGO_HENDF.png"
     },
     {
-      "id": "INGDF",
+      "id": "ING-DF",
       "nome": "INSTITUTO DE NEUROLOGIA DE GOIANIA LTDA",
       "sigla": "ING (DF)",
       "logo": "logos/LOGO_INGDF.png"
     },
     {
-      "id": "HSTMT",
+      "id": "HST-MT",
       "nome": "HOSPITAL SANTA THEREZA LTDA",
       "sigla": "HST (MT)",
       "logo": "logos/LOGO_HSTMT.png"
     },
     {
-      "id": "HPMMT",
+      "id": "HPM-MT",
       "nome": "HOSPITAL PALMAS MEDICAL S.A.",
       "sigla": "HPM (MT)",
       "logo": "logos/LOGO_HPMMT.png"
     },
     {
-      "id": "HSMCMT",
+      "id": "HSMC-MT",
       "nome": "HOSPITAL E MATERNIDADE SÃO MATEUS LTDA",
       "sigla": "HSM (MT)",
       "logo": "logos/LOGO_HSMCMT.png"
     },
     {
-      "id": "KORAES",
+      "id": "KORA-ES",
       "nome": "KORA SAÚDE PARTICIPAÇÕES S.A.",
       "sigla": "KORA (ES)",
       "logo": "logos/LOGO_KORAES.png"
     },
     {
-      "id": "OTOACE",
+      "id": "OTOA-CE",
       "nome": "HOSPITAL OTOCLINICA LTDA",
       "sigla": "OTO A (CE)",
       "logo": "logos/LOGO_OTOACE.png"
     },
     {
-      "id": "OTOCCE",
+      "id": "OTOC-CE",
       "nome": "OTOIMAGEM DIAGNOSTICOS S.A.",
       "sigla": "OTO C (CE)",
       "logo": "logos/LOGO_OTOCCE.png"

@@ -46,6 +46,7 @@ class BoletimController {
           contratada: boletim.empresa,
           cnpj: req.body.cnpj || 'N/A',
           contratante: boletim.contratante,
+          idContratante: req.body.idContratante || 'N/A',
           objeto: boletim.nomeObra,
           numeroProjeto: boletim.numeroProjeto,
           nPedido: req.body.nPedido || '',
